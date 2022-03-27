@@ -90,8 +90,14 @@ extension NotesListViewController {
         let note = notes[indexPath.row]
         
         var content = cell.defaultContentConfiguration()
-        content.text = note.title
-        content.secondaryText = note.text
+        if let noteTitle = note.title, !noteTitle.isEmpty {
+            content.text = note.title
+            content.secondaryText = note.text
+        } else {
+            content.text = note.text
+        }
+        
+        
         cell.contentConfiguration = content
         return cell
     }

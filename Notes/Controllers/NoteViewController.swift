@@ -96,10 +96,11 @@ class NoteViewController: UIViewController {
     
     private func addNewTask() {
         var text = noteTextView.text ?? ""
-        if let title = noteTitleField.text, !title.isEmpty {
-            if noteTextView.textColor == UIColor.lightGray {
-                text = ""
-            }
+        var title = noteTitleField.text ?? ""
+        if noteTextView.textColor == UIColor.lightGray {
+            text = ""
+        }
+        if !title.isEmpty || !text.isEmpty {
             guard let note = DataStoreManager.shared.addNew(titleValue: title, textValue: text) else {return}
             delegate?.addNoteInTable(note: note)
             self.navigationController?.popViewController(animated: true)
