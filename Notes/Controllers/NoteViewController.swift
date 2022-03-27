@@ -44,10 +44,19 @@ class NoteViewController: UIViewController {
     
     //MARK: - properties
     weak var delegate: NoteViewControllerDelegate?
+    var dataStoreManager: DataStoreManagerProtocol!
     var editingNote: Note?
     var indexOfEditingNote: Int?
+    init(dataStoreManager: DataStoreManagerProtocol) {
+        self.dataStoreManager = dataStoreManager
+        super.init(nibName: nil, bundle: nil)
+    }
     
-    //MARK: - lifecicle
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    //MARK: - override
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -96,12 +105,12 @@ class NoteViewController: UIViewController {
     
     private func addNewTask() {
         var text = noteTextView.text ?? ""
-        var title = noteTitleField.text ?? ""
+        let title = noteTitleField.text ?? ""
         if noteTextView.textColor == UIColor.lightGray {
             text = ""
         }
         if !title.isEmpty || !text.isEmpty {
-            guard let note = DataStoreManager.shared.addNew(titleValue: title, textValue: text) else {return}
+            guard let note = dataStoreManager.addNew(titleValue: title, textValue: text) else {return}
             delegate?.addNoteInTable(note: note)
             self.navigationController?.popViewController(animated: true)
         } else {
@@ -113,7 +122,7 @@ class NoteViewController: UIViewController {
         guard let index = indexOfEditingNote else { return }
         note.title = noteTitleField.text ?? ""
         note.text = noteTextView.text ?? ""
-        DataStoreManager.shared.update()
+        dataStoreManager.update()
         delegate?.updateNoteInTable(indexOfEditedRow: index)
         self.navigationController?.popViewController(animated: true)
     }

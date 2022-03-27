@@ -12,7 +12,19 @@ class NotesListViewController: UITableViewController {
     //MARK: - private properties
     private let cellID = "cell"
     private var notes: [Note] = []
-
+    private var dataManager: DataStoreManagerProtocol!
+    
+    //MARK: - init
+    init(dataManager: DataStoreManagerProtocol) {
+        self.dataManager = dataManager
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    //MARK: - override metods
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -57,7 +69,7 @@ class NotesListViewController: UITableViewController {
     }
     //MARK: - Objc metods
     @objc private func addNewNote() {
-        let noteViewController = NoteViewController()
+        let noteViewController = NoteViewController(dataStoreManager: dataManager)
         noteViewController.delegate = self
         noteViewController.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(noteViewController, animated: true)
@@ -65,12 +77,12 @@ class NotesListViewController: UITableViewController {
     }
     //MARK: -  Work with data
     private func fetchData() {
-        notes =  DataStoreManager.shared.fetchData(notes: notes)
+        notes =  dataManager.fetchData(notes: notes)
         tableView.reloadData()
             }
     private func createInitialNote() {
         if !UserDefaults.standard.bool(forKey: "isNotFirstTime") {
-            DataStoreManager.shared.createInitialNote()
+            dataManager.createInitialNote()
             UserDefaults.standard.set(true, forKey: "isNotFirstTime")
         }
         
@@ -104,7 +116,7 @@ extension NotesListViewController {
     
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let newNoteViewController = NoteViewController()
+        let newNoteViewController = NoteViewController(dataStoreManager: dataManager)
         newNoteViewController.modalPresentationStyle = .fullScreen
         newNoteViewController.editingNote = notes[indexPath.row]
         newNoteViewController.indexOfEditingNote = indexPath.row
@@ -113,9 +125,9 @@ extension NotesListViewController {
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-            let acionDelete = UIContextualAction(style: .destructive, title: "Delete") { (_, _, _) in
+            let acionDelete = UIContextualAction(style: .destructive, title: "Delete") { (_, _, _)  in
                 let note = self.notes.remove(at: indexPath.row)
-                DataStoreManager.shared.delete(note: note)
+                self.dataManager.delete(note: note)
                 tableView.reloadData()
             }
         let action = UISwipeActionsConfiguration(actions: [acionDelete])
